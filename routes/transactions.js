@@ -1,10 +1,12 @@
-import express, { json } from 'express';
+import express from 'express';
 import supabase from '../client.js';
 var router = express.Router();
 var payer;
 var points;
 
+//gets all transactions from the transactions table and returns them ordered by timstamp
 router.get('/', async (req, res) => {
+	//call to supabase DB to get all transactions
 	try {
 		const { data, error } = await supabase
 			.from('transactions')
@@ -19,7 +21,12 @@ router.get('/', async (req, res) => {
 	}
 });
 
+//Inserts a new transactoin into the transactions table
 router.post('/', async (req, res) => {
+	//initialize errors array and check if the post body is properly fulled out
+	payer = req.body.payer;
+	points = req.body.points;
+	const newPointsTotal = await getNewPointsTotal(payer, points);
 	var errors = [];
 	if (!req.body.payer) {
 		errors.push('Payer must be included');
@@ -30,8 +37,7 @@ router.post('/', async (req, res) => {
 	if (errors.length) {
 		res.status(400).json({ error: errors.join(',') });
 	}
-	payer = req.body.payer;
-	points = req.body.points;
+	//insert transaction into transactions table
 	try {
 		const { error } = await supabase.from('transactions').insert({
 			payer: req.body.payer,
@@ -47,15 +53,19 @@ router.post('/', async (req, res) => {
 	} catch (error) {
 		console.error(error);
 	}
-	const newPointsTotal = await getNewPointsTotal(payer, points);
 	await updatePayers(payer, newPointsTotal);
 });
 
+//Function that takes in the posted payer and points and returns the total points associated with
+//that payer
 const getNewPointsTotal = async (payer, points) => {
+	//gets all transactions points for specified payert
 	const transactionsPointsInDb = await supabase
 		.from('transactions')
 		.select('points')
 		.eq('payer', payer);
+	//If the response length is 0 adds new payer and points to the payer table and returns points
+	console.log(transactionsPointsInDb.body.length);
 	if (transactionsPointsInDb.body.length === 0) {
 		try {
 			const { error } = await supabase.from('payers').insert({
@@ -71,6 +81,7 @@ const getNewPointsTotal = async (payer, points) => {
 		}
 		return points;
 	}
+	//else loops over transactions points and sums them up and returns total
 	const currentPointsArray = transactionsPointsInDb.body;
 	let currentPointsTotal = 0;
 	currentPointsArray.forEach(pointObject => {
@@ -79,6 +90,8 @@ const getNewPointsTotal = async (payer, points) => {
 	return currentPointsTotal;
 };
 
+//Function that takes in a payer and the total points associated with that payer and
+//updates the totalPoints of that payer in the DB
 const updatePayers = async (payer, pointsTotal) => {
 	try {
 		const { error } = await supabase

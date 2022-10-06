@@ -2,6 +2,7 @@ import express from 'express';
 import supabase from '../client.js';
 var router = express.Router();
 
+//Gets all payers from the payers table
 router.get('/', async (req, res) => {
 	try {
 		const { data, error } = await supabase.from('payers').select('*');
@@ -14,6 +15,7 @@ router.get('/', async (req, res) => {
 	}
 });
 
+//posts a new payer to the payer table
 router.post('/', async (req, res) => {
 	var errors = [];
 	if (!req.body.payer) {
@@ -36,18 +38,6 @@ router.post('/', async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		res.status(400).json({ error: errors.join(',') });
-	}
-});
-
-router.delete('/:id', async (req, res) => {
-	try {
-		const { data, error } = await supabase
-			.from('payers')
-			.delete()
-			.eq('id', req.params.id);
-		res.json({ message: 'success' });
-	} catch {
-		console.error(error);
 	}
 });
 

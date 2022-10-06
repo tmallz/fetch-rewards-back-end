@@ -2,6 +2,7 @@ import express from 'express';
 import supabase from '../client.js';
 var router = express.Router();
 
+//Gets the balances for each payer from the payers table
 router.get('/', async (req, res) => {
 	try {
 		const { data, error } = await supabase
