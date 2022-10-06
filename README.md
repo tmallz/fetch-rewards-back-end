@@ -13,7 +13,11 @@ The purpose of this test was to make a functioning web service that handled uses
  - Once the app is up and running you will need to use an API client (such as [postman](https://www.postman.com/downloads/) or [insomnia](https://insomnia.rest/download) ) to test all of the routes
  - For navigating to the respective routes will allow you to see how the data is being modified, for instance if you add a transaction with a new payer, you will see that http://localhost:5000/transactions and http://localhost:5000/payer/ have been update
  - Routes: 
-   -http://localhost:5000/payer/ (GET request): Returns a list of the contents of the payers table from the DB
+     - http://localhost:5000/payer/ (GET request): Returns a list of the contents of the payers table from the DB
+
+
+
+
   -- http://localhost:5000/payer/ (POST request): Allows the user to post a new payer to the DB (Params : { "payer": "STRING_PAYER_NAME_HERE" })
   --- total points for each added payer default to 0 when added on this call. They get automatically updated on transaction add
   -- http://localhost:5000/transactions (GET request): Returns a list of all current transactions in the DB, ordered by timestamp (oldest -> newest)
