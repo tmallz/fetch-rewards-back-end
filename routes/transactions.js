@@ -47,8 +47,8 @@ router.post('/', async (req, res) => {
 	} catch (error) {
 		console.error(error);
 	}
-	const newPointsTotal = getNewPointsTotal(payer, points);
-	updatePayers(payer, newPointsTotal);
+	const newPointsTotal = await getNewPointsTotal(payer, points);
+	await updatePayers(payer, newPointsTotal);
 });
 
 const getNewPointsTotal = async (payer, points) => {
@@ -84,6 +84,7 @@ const updatePayers = async (payer, pointsTotal) => {
 		const { error } = await supabase
 			.from('payers')
 			.update({
+				payer: payer,
 				pointsTotal: pointsTotal,
 			})
 			.eq('payer', payer);
